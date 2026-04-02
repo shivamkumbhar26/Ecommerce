@@ -1,0 +1,83 @@
+
+.metadata/
+############################
+# 🔐 ENV & SECRETS (IMPORTANT)
+############################
+.env
+.env.*
+*.env
+application.properties
+application.yml
+application-*.yml
+
+# If you need config in repo → use example files instead:
+# application-example.yml
+
+############################
+# 📦 NODE / REACT
+############################
+node_modules/
+build/
+dist/
+.cache/
+.next/
+out/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+############################
+# ☕ SPRING BOOT / JAVA
+############################
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Logs
+*.log
+
+############################
+# 💻 IDE / EDITOR
+############################
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+############################
+# 🖥️ OS FILES
+############################
+.DS_Store
+Thumbs.db
+
+############################
+# 🐳 DOCKER (optional future use)
+############################
+*.pid
+*.seed
+*.pid.lock
+
+############################
+# 📊 DATABASE (local files)
+############################
+*.db
+*.sqlite
+*.sqlite3
+
+############################
+# 🔑 KEYS & CERTIFICATES
+############################
+*.pem
+*.key
+*.crt
+
+############################
+# 🧪 TEST / COVERAGE
+############################
+coverage/
