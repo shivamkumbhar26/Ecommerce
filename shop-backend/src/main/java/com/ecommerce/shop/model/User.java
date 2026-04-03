@@ -20,10 +20,4 @@ public class User {
     private List<CartItem> cart = new ArrayList<>();
 }
 
-@Data	
-class CartItem {
-    private String productId;
-    private String name;
-    private float price;
-    private int quantity;
-}
+

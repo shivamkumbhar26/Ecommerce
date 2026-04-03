@@ -38,7 +38,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll() // Public (Login/Register)
-                
+                .requestMatchers("/api/products/**").permitAll()
                 // ADMIN ONLY: Only users with ROLE_ADMIN can hit these
                 .requestMatchers("/api/admin/**").hasRole("ADMIN") 
                 
