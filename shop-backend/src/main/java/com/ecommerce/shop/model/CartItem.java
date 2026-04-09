@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CartItem {
+public class CartItem{
     private String productId;
     private String name;
     private float price;

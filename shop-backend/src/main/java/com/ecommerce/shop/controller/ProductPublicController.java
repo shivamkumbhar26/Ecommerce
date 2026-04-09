@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ecommerce.shop.dto.ApiResponse;
@@ -42,5 +43,17 @@ public class ProductPublicController {
         // 3. If it doesn't exist, return 404 with our error message
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ApiResponse(false, "Product not found with ID: " + id));
+    }
+    
+ // 1. Get products by Category (Public)
+    @GetMapping("/category/{categoryName}")
+    public ResponseEntity<List<Product>> getByCategory(@PathVariable String categoryName) {
+        return ResponseEntity.ok(productRepository.findByCategory(categoryName));
+    }
+
+    // 2. Search products by Name/Keyword (Public)
+    @GetMapping("/search")
+    public ResponseEntity<List<Product>> searchProducts(@RequestParam String query) {
+        return ResponseEntity.ok(productRepository.findByNameContainingIgnoreCase(query));
     }
 }

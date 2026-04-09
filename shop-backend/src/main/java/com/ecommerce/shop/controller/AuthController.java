@@ -65,12 +65,12 @@ public class AuthController {
             String token = jwtUtils.generateToken(user);
             
             // Return 200 OK with the Token and User info
-            return ResponseEntity.ok(new JwtResponse(token, user.getFullName(), user.getRole()));
+            return ResponseEntity.ok(new JwtResponse(true , token, user.getFullName(), user.getRole()));
             
         } else {
             // Return 401 Unauthorized for wrong password
             return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
+                    .status(HttpStatus.NOT_FOUND)
                     .body(new ApiResponse(false, "Invalid password. Please try again."));
         }
     }
