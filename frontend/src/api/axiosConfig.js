@@ -1,39 +1,41 @@
-import axios from 'axios';
+import axios from 'axios'
 
-// Create the instance with your Spring Boot Base URL
 const api = axios.create({
-  // This pulls the value from your .env file
-  baseURL: import.meta.env.VITE_API_BASE_URL, 
-  headers: {
-    'Content-Type': 'application/json'
-  }
-});
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+  headers: { 'Content-Type': 'application/json' },
+  timeout: 15000,
+})
 
-// REQUEST INTERCEPTOR: Automatically attaches the JWT for every call
+// Request interceptor — attach Bearer token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token')
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token}`
     }
-    return config;
+    return config
   },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+  (error) => Promise.reject(error)
+)
 
-// RESPONSE INTERCEPTOR: Handles 401 (Expired/Invalid Token) globally
+// Response interceptor — handle 401
+// Only force logout if the user actually had a token (expired session).
+// A 401 on a public endpoint (e.g. /api/products before login) should NOT
+// wipe a freshly saved token and redirect back to /login.
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
-      // If token is invalid, clear storage and boot to login
-      localStorage.clear();
-      window.location.href = '/login';
+    const isAuthEndpoint = error.config?.url?.includes('/api/auth/')
+    if (error.response?.status === 401 && !isAuthEndpoint) {
+      const token = localStorage.getItem('token')
+      if (token) {
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        window.location.href = '/login'
+      }
     }
-    return Promise.reject(error);
+    return Promise.reject(error)
   }
-);
+)
 
-export default api;
+export default api

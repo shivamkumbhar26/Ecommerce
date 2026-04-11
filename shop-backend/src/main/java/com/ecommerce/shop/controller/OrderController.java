@@ -62,6 +62,19 @@ public class OrderController {
         return ResponseEntity.ok(order);
     }
 
+ // Get only the orders belonging to the logged-in user
+    @GetMapping("/my")
+    public ResponseEntity<?> getMyOrders(Principal principal) {
+        // 1. principal.getName() gives us the email from the JWT token
+        String userEmail = principal.getName();
+        
+        // 2. We fetch all orders from the 'orders' collection where userEmail matches
+        List<Order> userOrders = orderRepository.findByUserEmail(userEmail);
+        
+        // 3. Return the list (it will be an empty [] if they haven't bought anything)
+        return ResponseEntity.ok(userOrders);
+    }
+    
     // API for Employees to see their specific tasks
     @GetMapping("/employee/tasks")
     public ResponseEntity<?> getEmployeeTasks(Principal principal) {

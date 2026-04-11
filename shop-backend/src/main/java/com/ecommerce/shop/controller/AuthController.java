@@ -46,7 +46,7 @@ public class AuthController {
     
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest) {
-        
+        System.out.println("Hello , at least i reach here . ");
         // 1. Find the user safely using Optional
         Optional<User> userOptional = userRepository.findByEmail(loginRequest.getEmail());
 
@@ -58,14 +58,14 @@ public class AuthController {
         }
 
         User user = userOptional.get();
-
+        System.out.println(user);
         // 2. Check password
         if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             
             String token = jwtUtils.generateToken(user);
             
             // Return 200 OK with the Token and User info
-            return ResponseEntity.ok(new JwtResponse(true , token, user.getFullName(), user.getRole()));
+            return ResponseEntity.ok(new JwtResponse(token , user.getRole() , user.getEmail() , user.getFullName() ));
             
         } else {
             // Return 401 Unauthorized for wrong password

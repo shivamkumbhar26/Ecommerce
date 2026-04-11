@@ -17,9 +17,8 @@ public class Order {
     private double totalAmount;
     private Date orderDate;
     
-    // New Fields for your logic
     private boolean isPaid;
     private String transactionId;
-    private String assignedTo;      // Email of the Employee
+    private String assignedTo;      // Employee Email
     private String deliveryStatus;  // "PENDING", "ASSIGNED", "OUT_FOR_DELIVERY", "DELIVERED"
 }

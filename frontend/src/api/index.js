@@ -1,0 +1,5 @@
+export { default as api } from './axiosConfig'
+export { authApi } from './authApi'
+export { productsApi } from './productsApi'
+export { ordersApi } from './ordersApi'
+export { usersApi } from './usersApi'
