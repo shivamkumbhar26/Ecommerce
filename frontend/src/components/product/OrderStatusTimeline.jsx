@@ -14,8 +14,9 @@ const STATUS_INDEX = {
   DELIVERED: 3,
 }
 
-export default function OrderStatusTimeline({ status, isPaid }) {
-  const currentIndex = !isPaid ? 0 : (STATUS_INDEX[status] ?? 1)
+export default function OrderStatusTimeline({ status, isPaid, paid }) {
+  const isActuallyPaid = isPaid ?? paid ?? false
+  const currentIndex = !isActuallyPaid ? 0 : (STATUS_INDEX[status] ?? 1)
 
   return (
     <div className="flex items-center">
