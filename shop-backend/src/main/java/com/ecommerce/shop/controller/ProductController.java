@@ -3,12 +3,14 @@ package com.ecommerce.shop.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.ecommerce.shop.model.Product;
 import com.ecommerce.shop.dto.ApiResponse;
 import com.ecommerce.shop.repository.ProductRepository;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 
 @RestController
@@ -58,5 +60,23 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ApiResponse(false, "Internal Server Error: " + e.getMessage()));
         }
+    }
+    
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> updateProduct(@PathVariable String id, @RequestBody Product updatedProduct) {
+        return productRepository.findById(id)
+            .map(existingProduct -> {
+                existingProduct.setName(updatedProduct.getName());
+                existingProduct.setDescription(updatedProduct.getDescription());
+                existingProduct.setPrice(updatedProduct.getPrice());
+                existingProduct.setCategory(updatedProduct.getCategory());
+                existingProduct.setImageUrls(updatedProduct.getImageUrls());
+                existingProduct.setStockQuantity(updatedProduct.getStockQuantity());
+                
+                productRepository.save(existingProduct);
+                return ResponseEntity.ok(Collections.singletonMap("message", "Product updated successfully"));
+            })
+            .orElse(ResponseEntity.status(404).body(Collections.singletonMap("message", "Product not found")));
     }
 }

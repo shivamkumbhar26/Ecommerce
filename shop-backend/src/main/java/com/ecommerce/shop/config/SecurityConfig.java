@@ -59,11 +59,11 @@ public class SecurityConfig {
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/users").hasRole("ADMIN")
                 .requestMatchers("/api/orders").hasRole("ADMIN")
-                .requestMatchers("/api/orders/checkout").hasRole("USER")
+                .requestMatchers("/api/orders/checkout").hasAnyRole("USER","EMPLOYEE")
              // UPDATED SECURITY RULES
                 .requestMatchers("/api/orders/my").hasAnyRole("USER", "EMPLOYEE", "ADMIN") 
                 .requestMatchers("/api/orders/employee/**").hasAnyRole("EMPLOYEE", "ADMIN")
-                .requestMatchers("/api/cart/**").hasAnyRole("USER", "EMPLOYEE")
+                .requestMatchers("/api/cart/**").hasAnyRole("USER", "EMPLOYEE","ADMIN")
                 .anyRequest().authenticated()
             );
 

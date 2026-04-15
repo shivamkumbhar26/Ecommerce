@@ -57,14 +57,23 @@ export default function ProductDetailPage() {
   const hasDiscount = salePrice && salePrice < price
   const discount = hasDiscount ? Math.round(((price - salePrice) / price) * 100) : null
 
-  const handleAddToCart = () => {
+  const [adding, setAdding] = useState(false)
+
+  const handleAddToCart = async () => {
     if (!isLoggedIn) {
       pushAlert('Please log in to add items to cart', 'warning')
       navigate('/login')
       return
     }
-    for (let i = 0; i < qty; i++) addItem(product)
-    pushAlert(`${qty}× "${name}" added to cart`, 'success')
+    setAdding(true)
+    try {
+      await addItem(product, qty)
+      pushAlert(`${qty}× "${name}" added to cart`, 'success')
+    } catch {
+      pushAlert('Failed to add item. Please try again.', 'error')
+    } finally {
+      setAdding(false)
+    }
   }
 
   return (
@@ -197,7 +206,7 @@ export default function ProductDetailPage() {
             </div>
           </div>
 
-          <Button size="lg" className="w-full sm:w-auto" onClick={handleAddToCart}>
+          <Button size="lg" className="w-full sm:w-auto" onClick={handleAddToCart} loading={adding}>
             <ShoppingCart className="w-5 h-5" />
             Add to cart — {formatCurrency(displayPrice * qty)}
           </Button>
