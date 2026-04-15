@@ -16,7 +16,7 @@ export const productsApi = {
 
   create: (data) => api.post('/api/admin/products/add', data),
 
-  update: (id, data) => api.put(`/api/products/${id}`, data),
+  update: (id, data) => api.put(`/api/admin/products/${id}`, data),
 
   delete: (id) => api.delete(`/api/products/${id}`),
 }

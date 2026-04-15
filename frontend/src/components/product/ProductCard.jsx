@@ -1,4 +1,5 @@
-import { ShoppingCart, Star, Tag } from 'lucide-react'
+import { ShoppingCart, Star, Tag, Loader2 } from 'lucide-react'
+import { useState } from 'react'
 import { useCart } from '../../context/CartContext'
 import { useAuth } from '../../context/AuthContext'
 import { useUI } from '../../context/UIContext'
@@ -23,15 +24,24 @@ export default function ProductCard({ product }) {
       ? imageUrls[0]
       : null
 
-  const handleAddToCart = (e) => {
+  const [adding, setAdding] = useState(false)
+
+  const handleAddToCart = async (e) => {
     e.stopPropagation()
     if (!isLoggedIn) {
       pushAlert('Please log in to add items to cart', 'warning')
       navigate('/login')
       return
     }
-    addItem(product)
-    pushAlert(`"${name}" added to cart`, 'success')
+    setAdding(true)
+    try {
+      await addItem(product)
+      pushAlert(`"${name}" added to cart`, 'success')
+    } catch {
+      pushAlert('Failed to add item. Please try again.', 'error')
+    } finally {
+      setAdding(false)
+    }
   }
 
   return (
@@ -89,10 +99,11 @@ export default function ProductCard({ product }) {
 
           <button
             onClick={handleAddToCart}
-            className="p-2.5 rounded-xl bg-brand-500/10 text-brand-400 hover:bg-brand-500 hover:text-white border border-brand-500/20 hover:border-brand-500 transition-all duration-200 active:scale-95"
+            className="p-2.5 rounded-xl bg-brand-500/10 text-brand-400 hover:bg-brand-500 hover:text-white border border-brand-500/20 hover:border-brand-500 transition-all duration-200 active:scale-95 disabled:opacity-50"
             title="Add to cart"
+            disabled={adding}
           >
-            <ShoppingCart className="w-4 h-4" />
+            {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShoppingCart className="w-4 h-4" />}
           </button>
         </div>
       </div>

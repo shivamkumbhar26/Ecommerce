@@ -8,20 +8,22 @@ import { formatCurrency } from '../utils'
 import Button from '../components/ui/Button'
 import EmptyState from '../components/ui/EmptyState'
 import PaymentModal from '../components/cart/PaymentModal'
+import Spinner from '../components/ui/Spinner'
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, clearCart, cartTotal } = useCart()
+  const { items, removeItem, updateQuantity, clearCart, cartTotal, loading } = useCart()
   const { pushAlert } = useUI()
   const navigate = useNavigate()
   const [paymentOpen, setPaymentOpen] = useState(false)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
 
+  // Payment unchanged — send paymentId to backend
   const handlePaymentSuccess = async (paymentId) => {
     setPaymentOpen(false)
     setCheckoutLoading(true)
     try {
       await ordersApi.checkout(paymentId)
-      clearCart()
+      await clearCart()
       pushAlert('Order placed successfully! 🎉', 'success')
       navigate('/orders')
     } catch (err) {
@@ -34,6 +36,14 @@ export default function CartPage() {
     }
   }
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[60vh]">
+        <Spinner size="lg" />
+      </div>
+    )
+  }
+
   if (!items.length) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
@@ -41,11 +51,7 @@ export default function CartPage() {
           icon={ShoppingBag}
           title="Your cart is empty"
           description="Browse our products and add something you love."
-          action={
-            <Link to="/" className="btn-primary">
-              Continue shopping
-            </Link>
-          }
+          action={<Link to="/" className="btn-primary">Continue shopping</Link>}
         />
       </div>
     )
@@ -63,67 +69,54 @@ export default function CartPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Item list */}
         <div className="lg:col-span-2 space-y-3">
-          {items.map(({ product, quantity }) => {
-            const price = product.salePrice ?? product.price
-            const primaryImage = Array.isArray(product.imageUrls) && product.imageUrls[0]
-            return (
-              <div key={product.id} className="card p-4 flex gap-4 items-start animate-fade-in">
-                {/* Image */}
-                <div className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden bg-ink-800 border border-ink-700">
-                  {primaryImage ? (
-                    <img
-                      src={primaryImage}
-                      alt={product.name}
-                      className="w-full h-full object-cover"
-                      onError={(e) => { e.target.style.display = 'none' }}
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <ShoppingBag className="w-6 h-6 text-ink-600" />
-                    </div>
-                  )}
-                </div>
-
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-ink-500 font-mono mb-0.5">{product.brand}</p>
-                  <h3 className="font-medium text-ink-100 truncate">{product.name}</h3>
-                  <p className="text-sm text-brand-400 font-semibold mt-1">
-                    {formatCurrency(price)}
-                  </p>
-                </div>
-
-                {/* Qty + remove */}
-                <div className="flex flex-col items-end gap-3 flex-shrink-0">
-                  <button
-                    onClick={() => removeItem(product.id)}
-                    className="p-1.5 rounded-lg text-ink-600 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => updateQuantity(product.id, quantity - 1)}
-                      disabled={quantity <= 1}
-                      className="w-7 h-7 rounded-lg bg-ink-800 border border-ink-700 flex items-center justify-center text-ink-300 hover:text-white disabled:opacity-30 transition-colors"
-                    >
-                      <Minus className="w-3 h-3" />
-                    </button>
-                    <span className="w-8 text-center text-sm font-mono text-ink-100">{quantity}</span>
-                    <button
-                      onClick={() => updateQuantity(product.id, quantity + 1)}
-                      className="w-7 h-7 rounded-lg bg-ink-800 border border-ink-700 flex items-center justify-center text-ink-300 hover:text-white transition-colors"
-                    >
-                      <Plus className="w-3 h-3" />
-                    </button>
-                  </div>
-                  <p className="text-sm font-semibold text-ink-200">
-                    {formatCurrency(price * quantity)}
-                  </p>
-                </div>
+          {items.map((item) => (
+            // Backend shape: { productId, name, price, quantity }
+            <div key={item.productId} className="card p-4 flex gap-4 items-start animate-fade-in">
+              {/* Icon placeholder (backend doesn't return image in cart) */}
+              <div className="w-20 h-20 flex-shrink-0 rounded-xl bg-ink-800 border border-ink-700 flex items-center justify-center">
+                <ShoppingBag className="w-6 h-6 text-ink-600" />
               </div>
-            )
-          })}
+
+              {/* Info */}
+              <div className="flex-1 min-w-0">
+                <h3 className="font-medium text-ink-100 truncate">{item.name}</h3>
+                <p className="text-sm text-brand-400 font-semibold mt-1">
+                  {formatCurrency(item.price)}
+                </p>
+              </div>
+
+              {/* Qty + remove */}
+              <div className="flex flex-col items-end gap-3 flex-shrink-0">
+                <button
+                  onClick={() => removeItem(item.productId)}
+                  className="p-1.5 rounded-lg text-ink-600 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                    disabled={item.quantity <= 1}
+                    className="w-7 h-7 rounded-lg bg-ink-800 border border-ink-700 flex items-center justify-center text-ink-300 hover:text-white disabled:opacity-30 transition-colors"
+                  >
+                    <Minus className="w-3 h-3" />
+                  </button>
+                  <span className="w-8 text-center text-sm font-mono text-ink-100">
+                    {item.quantity}
+                  </span>
+                  <button
+                    onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                    className="w-7 h-7 rounded-lg bg-ink-800 border border-ink-700 flex items-center justify-center text-ink-300 hover:text-white transition-colors"
+                  >
+                    <Plus className="w-3 h-3" />
+                  </button>
+                </div>
+                <p className="text-sm font-semibold text-ink-200">
+                  {formatCurrency(item.price * item.quantity)}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Order summary */}
@@ -132,13 +125,13 @@ export default function CartPage() {
             <h2 className="font-display text-xl font-semibold text-ink-100 mb-5">Order Summary</h2>
 
             <div className="space-y-3 mb-5">
-              {items.map(({ product, quantity }) => (
-                <div key={product.id} className="flex justify-between text-sm">
+              {items.map((item) => (
+                <div key={item.productId} className="flex justify-between text-sm">
                   <span className="text-ink-400 truncate mr-2">
-                    {product.name} × {quantity}
+                    {item.name} × {item.quantity}
                   </span>
                   <span className="text-ink-200 flex-shrink-0">
-                    {formatCurrency((product.salePrice ?? product.price) * quantity)}
+                    {formatCurrency(item.price * item.quantity)}
                   </span>
                 </div>
               ))}
@@ -170,6 +163,7 @@ export default function CartPage() {
         </div>
       </div>
 
+      {/* Payment modal — unchanged */}
       <PaymentModal
         isOpen={paymentOpen}
         onClose={() => setPaymentOpen(false)}
